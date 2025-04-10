@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Programming Assignment #4 (PA4)</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Quartz Colvin" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/rutgers.css" rel="stylesheet" />
+    <link href="libs/remark-css/rutgers-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Programming Assignment #4 (PA4)
+]
+.subtitle[
+## Data Science for Linguists
+]
+.author[
+### Quartz Colvin
+]
+.institute[
+### Rutgers University
+]
+.date[
+### 2016/12/12 (updated: 2025-03-28)
+]
+
+---
+
+# Setup
+
+- First, we need to load the libraries
+
+
+``` r
+library("tidyverse")
+library("ds4ling")
+library("untidydata")
+library("plot3D")
+
+options(htmltools.dir.version = FALSE)
+```
+
+
+---
+# The data
+
+## Load dataset 
+
+**(4.) Load the dataset from inside your index.Rmd file**
+
+
+``` r
+fricatives &lt;- read_csv("./data_raw/fricatives/fricatives.csv")
+```
+
+---
+
+# The data 
+
+## "Codebook" (reference information)
+
+- obs: (character), observation number
+- s_cog: (numeric), center of gravity measurement in Hz for [s].
+- s_skewness: (numeric), skewness measurement for [s].
+- sh_cog: (numeric), center of gravity measurement in Hz for [ʃ].
+- sh_skewness: (numeric), skewness measurement for [ʃ].
+
+---
+
+# The data 
+
+## Preview the data
+
+
+``` r
+head(fricatives)
+```
+
+```
+## # A tibble: 6 × 5
+##     obs s_cog s_skewness sh_cog sh_skewness
+##   &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;
+## 1     1 3285.       2.72  2556.        2.31
+## 2     2 3511.       3.09  2781.        2.47
+## 3     3 4029.       3.33  2979.        2.48
+## 4     4 4123.       3.00  2997.        2.45
+## 5     5 4664.       2.88  3020.        2.65
+## 6     6 4680.       3.84  3097.        2.78
+```
+
+---
+# The data
+
+## Tidy this data
+
+**(5.) Tidy the data**
+
+
+``` r
+tidy_fricatives &lt;- fricatives |&gt;
+  pivot_longer(
+    c(s_cog, sh_cog, s_skewness, sh_skewness),
+    names_to = c("phoneme", "values"),
+    names_sep = "_") |&gt;
+  pivot_wider(
+    names_from = values,
+    values_from = value
+  )
+```
+
+---
+
+# The data 
+
+## View tidy data
+
+- Did this work? Let's see:
+
+
+``` r
+head(tidy_fricatives)
+```
+
+```
+## # A tibble: 6 × 4
+##     obs phoneme   cog skewness
+##   &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+## 1     1 s       3285.     2.72
+## 2     1 sh      2556.     2.31
+## 3     2 s       3511.     3.09
+## 4     2 sh      2781.     2.47
+## 5     3 s       4029.     3.33
+## 6     3 sh      2979.     2.48
+```
+
+- Thank god
+
+---
+
+# The data
+
+## Save data
+
+**(5.) Save the newly tidied data as a csv file in "data_tidy"**
+
+
+``` r
+write_csv(x = fricatives, file = "./data_tidy/tidy_fricatives.csv")
+```
+
+
+---
+
+# Statistics
+
+## Descriptive statistics
+
+**(6.) Provide a table of descriptive statistics**
+
+- Merlin brought up the idea of using a function for this and I liked that idea.
+
+- So! Here is the function I'm using:
+
+
+``` r
+stats_fx &lt;- function(x) {
+  cat("Mean:", mean(x), "\n")
+  cat("Std:", sd(x), "\n")
+  cat("Min:", min(x), "\n")
+  cat("Max:", max(x), "\n")
+  cat("Median:", median(x), "\n")
+  cat("Variance:", var(x), "\n")
+}
+```
+
+---
+### Descriptive statistics
+
+
+``` r
+knitr::kable(stats_fx(tidy_fricatives$cog),
+             caption = "Descriptive Statistics: Center of Gravity.")
+```
+
+```
+## Mean: 4847.155 
+## Std: 1101.193 
+## Min: 2556.033 
+## Max: 7095.281 
+## Median: 4876.153 
+## Variance: 1212627
+```
+
+
+
+Table: Descriptive Statistics: Center of Gravity.
+
+``` r
+knitr::kable(stats_fx(tidy_fricatives$skewness),
+             caption = "Descriptive statistics: Skewness.")
+```
+
+```
+## Mean: 3.429512 
+## Std: 0.5675383 
+## Min: 2.101727 
+## Max: 4.751733 
+## Median: 3.457987 
+## Variance: 0.3220997
+```
+
+
+
+Table: Descriptive statistics: Skewness.
+
+
+---
+# Statistics 
+
+## Boxplots
+
+**(7.) Make a boxplot of center of gravity as a function of phoneme.**
+
+- The boxplot is on the next slide!
+
+---
+### Boxplot (cog and phoneme)
+
+![](index_files/figure-html/boxplot_cog_phoneme-1.png)&lt;!-- --&gt;
+
+
+---
+# Statistics
+
+## Plot skewness
+
+**(7.) In another slide, plot skewness as a function of phoneme.**
+
+- Boxplot is on the next slide.
+
+---
+
+### Boxplot (skewness and phoneme)
+
+![](index_files/figure-html/boxplot_skewness_phoneme-1.png)&lt;!-- --&gt;
+
+---
+# Statistics
+
+## Stat summary
+
+**(7.) Use a statistical transformation (i.e., not a boxplot, but rather stat_summary()).**
+
+- This plot is on the next slide.
+
+---
+### Stats summary
+
+![](index_files/figure-html/fricatives_transformation-1.png)&lt;!-- --&gt;
+
+---
+
+# Model
+
+## Fit a model 
+
+**(8.) Fit a model that examines center of gravity as a function of skewness for the [s] segments (hint: you will have to transform the data).**
+
+
+``` r
+s_data &lt;- tidy_fricatives |&gt;
+  filter(phoneme == "s") |&gt;
+  select(phoneme, cog, skewness)
+
+s_mod &lt;- lm(formula = cog ~ skewness, data = s_data)
+```
+
+---
+
+# Model
+
+## Model summary 
+
+**(8.) Make a table of the model summary.**
+
+
+``` r
+summary(s_mod)
+```
+
+```
+## 
+## Call:
+## lm(formula = cog ~ skewness, data = s_data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -996.88 -254.05  -25.71  278.99 1020.41 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   -756.7      532.1  -1.422    0.161    
+## skewness      1675.6      139.4  12.022 4.37e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 419.4 on 48 degrees of freedom
+## Multiple R-squared:  0.7507,	Adjusted R-squared:  0.7455 
+## F-statistic: 144.5 on 1 and 48 DF,  p-value: 4.373e-16
+```
+
+---
+
+# Model
+
+## Make scatterplot
+
+**(9.) Make a scatter plot that illustrates the relationship in the previous slides**
+
+- See next slide.
+
+---
+### Scatterplot
+
+
+``` r
+s_data |&gt; 
+  ggplot() + 
+  geom_point(mapping = aes(x = cog, y = skewness)) +
+  geom_smooth(method='lm', aes(x = cog, y = skewness), se = FALSE) +
+  labs(x = 'Center of gravity', y = 'Skewness') +
+  labs(title = "Correlation between center of gravity and skewness for 's' phoneme.")
+```
+
+![](index_files/figure-html/scatterplot_s_mod-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Model
+
+## Model diagnostics 
+
+**(10.) Check model diagnostics (make plots).**
+
+- See next slide
+
+---
+### Diagnostic plots
+
+
+``` r
+ds4ling::diagnosis(s_mod)
+```
+
+&lt;img src="index_files/figure-html/diagnostics-1.png" width="100%" /&gt;
+
+
+---
+
+### Results 
+
+**(11.) Write up the results (as if it were for a journal article).**
+
+- This model is fit **fairly well**.
+
+- **Plot 1:** The Residuals plot shows that the points are somewhat narrowly spread out around 0. This could be a bit better, but for now it is ***pretty good***.
+
+- **Plot 2:** The Density histogram is almost bell-shaped. This diagnostic *could* be better, but for now it is ***pretty good***. 
+
+- **Plot 3:** The Simple Quartiles plot shows that the tail ends of the data don't deviate much from the baseline. Again, this diagnostic ***could be better***, but it isn't terrible. 
+
+- So, overall this model is fit fairly well (especially with the consideration that no model is flawless) even though the plots could look a bit better.
+
+
+
+
+---
+
+# Assumptions 
+
+## Load dataset
+
+**(12.) In a new slide, load the assumptions.csv dataset.**
+
+
+``` r
+assumptions &lt;- read_csv("./data_raw/fricatives/assumptions.csv")
+```
+---
+# Assumptions dataset
+
+## View the dataset
+
+
+``` r
+head(assumptions)
+```
+
+```
+## # A tibble: 6 × 2
+##       x     y
+##   &lt;dbl&gt; &lt;dbl&gt;
+## 1  55.4  97.2
+## 2  51.5  96.0
+## 3  46.2  94.5
+## 4  42.8  91.4
+## 5  40.8  88.3
+## 6  38.7  84.9
+```
+
+---
+
+# Assumptions dataset 
+
+## Scatterplot
+
+**(12.) Make a scatterplot.**
+
+- Oh!! A ***FRIEND***-shaped plot! 
+
+---
+### Our dinosaur friend
+
+
+``` r
+assumptions |&gt;
+  ggplot() + 
+  aes(x = x, y = y) + 
+  geom_point()
+```
+
+![](index_files/figure-html/scatterplot_assumptions-1.png)&lt;!-- --&gt;
+
+
+---
+# Assumptions dataset 
+
+## Fit model to this data?
+
+**(12.) Explain in a few sentences why it would not be appropriate to fit a model to this data.**
+
+- Let's run the diagnoses to see exactly why it wouldn't be reasonable.
+
+- These plots are on the next slide.
+
+---
+### Fit a model?
+
+
+``` r
+ass_mod &lt;- lm(y ~ x, data = assumptions)
+
+ds4ling::diagnosis(ass_mod)
+```
+
+&lt;img src="index_files/figure-html/assumptions_diagnostics-1.png" width="100%" /&gt;
+
+---
+
+### (12.) Fit a model? ***No.*** 
+
+Why is it not appropriate to fit a model to this data?
+
+- **Plot 1:** In the Residuals plot, the points are spread out ***very randomly***. 
+
+- **Plot 2:** The Density histogram is ***not bell-shaped*** at all. 
+
+- **Plot 3:** The Simple Quartiles plot shows that the ends of the datapoints ***greatly deviate*** from the line. 
+
+- All of these diagnoses indicate that **a fitted model isn't appropriate** for this dataset.
+
+---
+
+# "Thank you!" dino friend.
+
+![](index_files/figure-html/dino_friend-1.png)&lt;!-- --&gt;
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,288 @@
+---
+title: "Differences in Vowel-Glide Production Between L1 and L2 Speakers of Hul'q'umi'num'"
+author: "Quartz Colvin"
+institute: "Rutgers University"
+date: "2016/12/12 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    css: ["rutgers", "rutgers-fonts"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+# The paper
+
+**Citation:**
+
+Onosson, S., and Bird, S. (2019). Differences in vowel-glide production between L1 and L2 speakers of Hul'q'umi'num'. *International Congress of Phonetic Sciences, 19,* 984-988.
+
+**Link:**
+
+You can find the paper [here](https://www.internationalphoneticassociation.org/icphs-proceedings/ICPhS2019/papers/ICPhS_1033.pdf).
+
+
+---
+# Overview
+
+## The point
+
+This paper compares acoustic properties of vowel-glide sequences between one L1 speaker and a group of L2 speakers.
+
+- **Acoustic properties:** total duration, formant measurements at intervals, spectral intensity 
+
+- **Vowel-glide sequences:** [e, e:, ej, ew]
+
+---
+# Overview
+
+## Hul'q'umi'num' 
+
+Hul'q'umi'num' territory extends across Nanoose and Malahat on Vancouver Island, and on neighboring islands.
+
+- ~40 L1 speakers
+
+- \>200 fluent L2 speakers
+
+- \>1,000 learners of all ages
+
+---
+# Overview 
+
+## The research questions
+
+1. How does pronunciation of vowel-glide sequences currently differ between L1 and L2 speakers?
+
+2. What aspects of these sequences' pronunciation should we target in future pedagogical materials? *(mainly for intermediate level learners)*
+
+---
+# Overview 
+
+## General findings
+
+They find that the L1 speaker differed from the L2 speakers in vowel duration, vowel and glide articulatory target positions, and dynamics of the intensity contour.  
+
+---
+# Methods
+
+## What they did (experimental methods)
+
+- The L1 speaker went over the full 30-word list in sequence with one L2 speaker at a time
+
+- For each word, L1 speaker read the word first, and the L2 speaker repeated it back. They did two repetitions (back and forth) per word
+
+- Four words containing one of the 4 sequences were extracted from recordings of the 30-item word list
+
+---
+# Methods 
+
+## What they did (stimuli)
+
+**The 4 words:**
+
+[e] /leləm’/ house 
+
+[eː] /ʔeːn’θə/ me 
+
+[ej] /sqwəmej’/ dog 
+
+[ew] /sqəl’ew’/ beaver
+
+---
+# Methods
+
+## How'd they do it?
+
+- Tokens of the 4 sequences were manually segmented and transcribed in Praat
+
+- Then a Praat script was used to extract acoustic measurements: total duration and formant measurements
+
+- The discrete formant measurements were taken at 5% duration intervals throughtout the duration of the sequence
+
+- Then the Praat script was modified to extract 5%-interval measurements of spectral intensity
+
+- Finally the acoustic data was exported to R where they did the statistical analysis/modelling (they used **itsadug** package)
+
+---
+# Methods 
+
+## Why did they make some of these experimental decisions?
+
+- **Spectral intensity** was included because elders and teachers had the impression that the relative prominence of the vowel and glide was different between L1 and L2 speakers.
+
+- **[e:]** was included because there is evidence (they don't cite anyone) that this long vowel has some diphthongal characteristics
+
+
+
+
+
+
+
+---
+# Statistical analysis 
+
+## What'd they do?
+
+- **Duration:** they did a two-way ANOVA test of duration by vowel type and speaker group
+
+- **Formant trajectories:** they used time-normalized durations to compare F1 and F2 in a generalized additive model (GAM)
+
+- **Intensity trajectories:**  used a GAM in the same way they did for formant trajectories
+
+---
+# Statistical analysis 
+
+## Formant trajectories
+
+They did a comparison of F1 and F2 formant trajectories in GAM
+
+The durations were time-normalized and for each token, 20 discrete per-formant measurements were taken at 5% intervals 
+
+**How to read:**
+
+The mean formant trajectory is plotted as a solid line
+
+Shaded regions representing confidence intervals associated with the distribution of formant values across the tokens in the dataset
+
+- Where the confidence intervals for L1 and L2 don't overlap, this indicates a statistically significant difference at that position
+
+---
+# Statistical analysis
+
+## Intensity trajectories
+
+Same method of analysis as for formant trajectories (per-group intensity values normalized to global mean)
+
+
+**Why take data at intervals?**
+
+Per-formant measurements were taken at 5% intervals to monitor variation between speaker groups across the entire trajectory of the vowel
+
+---
+# Appropriateness
+
+**Q: Given what you know/read, was this the best analysis?** 
+
+The analysis was fine but they did not explain much of the model they used to reach their conclusions. 
+
+They were clear about their variables and discussing possible interactions, but said very little about the details of fitting the model, any transformations they did, and they could have said more about decision rules. 
+
+---
+# Novelty of analysis
+
+**Q: Did they do something you haven't seen before?**
+
+**Yes!** I've never seen trajectory graphs before.
+
+- They're good for showing values over a period of time, and the mean for that value throughout the duration.
+
+- It seems like this kind of graph is well-suited to continuous data such as formants over time! 
+
+
+
+
+
+
+
+
+
+---
+# Results
+
+## Duration
+
+- The ANOVA test revealed a significant effect of vowel (p < 0.001), but no significant effect for speaker group
+
+- The L2 speakers had slightly shorter [ej, ew, e:] and a slightly longer [e] than the L1 speaker
+
+**BONUS: [ej] details**
+
+- [ej] had the biggest difference in mean duration between speaker groups, but it was still within one standard deviation
+
+- For the L1 speaker this was shorter than [e:] and [ew] and only slightly shorter than [e]
+
+- For L2 speakers this was the shortest of all 4 sequences
+
+---
+# Results
+
+## Formant trajectories
+
+**Height**
+
+- Articulatory targets in the sequences are closer together for L2 vs. L1, especially wrt F1
+
+- F1 starts at a similar level for L2 as L1, but doesn't descend as far for the glide
+
+- L2 glides [j] and [w] are more similar in height to that of nucleus [e], in comparison with L1
+
+**Backness**
+
+- F2 of L2 differs the most from L1 during the nucleus, being lower
+
+- Both groups reach the same F2 target for the glide by 100% of the duration (for both vowel-glide sequences)
+
+---
+# Results 
+
+## Intensity trajectories 
+
+- Intensity drops off sooner for L2 versus L1 across vowel-glide sequences (and slightly for [e:])
+
+- [ew] and [e:] have two intensity peaks for L1, suggesting two relatively distinct components of the sequence
+
+- [ej] didn't have this two-peak curve
+
+- L2 speakers seem to be replicating the two-peak pattern fairly well, just with the slightly earlier intensity drop-off
+
+
+
+
+---
+# Results evaluation
+
+**Duration:** they only reported mean durations (in a table), p-value (in prose!), and standard deviations (in a table)
+
+**Formant trajectories:** they only reported mean formant trajectory, confidence interval (both only shown on the graphs)
+
+**Intensity trajectories:** they only reported mean intensity per group, confidence interval (both only shown on the graphs)
+
+
+
+---
+# Results evaluation
+
+**Q: Did they properly/accurately explain their results and interpret the results?**
+
+They could have said _much_ more about their model fit and could have used more descriptive statistics (besides mean and sd) in their interpretation/results. 
+
+I think they interpreted their findings accurately, based on what few statistics they explicitly stated.
+
+
+
+
+
+---
+# Results evaluation
+
+**Q: Did they use tables/graphs? Did the tables/graphs facilitate the interpretation of the results?**
+
+**Yes**, they had several figures! The tables and graphs were the main tool they used to interpret the results. The graphs were great, but I think they depended too heavily on them to state the results of their study. 
+
+---
+# Results evaluation
+
+**See! Pretty graph!**
+
+![Caption for the picture.](./images/figure1.png)
+
+---
+# General evaluation
+
+**Q: What did you like or dislike about their analysis and why?**
+
+I thought it was good that they noted that since all L1 tokens were from the same speaker and L2 tokens were from multiple speakers, *"the statistical significance of the results from this preliminary study should be interpreted with caution."*
+
+I loved how they presented the results; their graphs were clear and informative. I also like that the end goal of this analysis is to improve teaching materials in the community **:)**

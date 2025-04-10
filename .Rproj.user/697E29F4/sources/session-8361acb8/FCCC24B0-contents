@@ -1,0 +1,498 @@
+---
+title: "Programming Assignment #4 (PA4)"
+subtitle: "Data Science for Linguists"
+author: "Quartz Colvin"
+institute: "Rutgers University"
+date: "2016/12/12 (updated: `r Sys.Date()`)"
+output:
+  xaringan::moon_reader:
+    css: ["rutgers", "rutgers-fonts"]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+# Setup
+
+- First, we need to load the libraries
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+#| echo: true
+
+library("tidyverse")
+library("ds4ling")
+library("untidydata")
+library("plot3D")
+
+options(htmltools.dir.version = FALSE)
+
+```
+
+
+---
+# The data
+
+## Load dataset 
+
+**(4.) Load the dataset from inside your index.Rmd file**
+
+```{r}
+#| label: load_dataset
+#| message: false
+#| warning: false
+#| echo: true
+
+fricatives <- read_csv("./data_raw/fricatives/fricatives.csv")
+
+```
+
+---
+
+# The data 
+
+## "Codebook" (reference information)
+
+- obs: (character), observation number
+- s_cog: (numeric), center of gravity measurement in Hz for [s].
+- s_skewness: (numeric), skewness measurement for [s].
+- sh_cog: (numeric), center of gravity measurement in Hz for [ʃ].
+- sh_skewness: (numeric), skewness measurement for [ʃ].
+
+---
+
+# The data 
+
+## Preview the data
+
+```{r}
+#| label: view_dataset
+
+head(fricatives)
+
+```
+
+---
+# The data
+
+## Tidy this data
+
+**(5.) Tidy the data**
+
+```{r}
+#| label: tidy_fricatives
+#| message: true
+#| warning: false
+#| echo: true
+
+tidy_fricatives <- fricatives |>
+  pivot_longer(
+    c(s_cog, sh_cog, s_skewness, sh_skewness),
+    names_to = c("phoneme", "values"),
+    names_sep = "_") |>
+  pivot_wider(
+    names_from = values,
+    values_from = value
+  )
+
+```
+
+---
+
+# The data 
+
+## View tidy data
+
+- Did this work? Let's see:
+
+```{r}
+#| label: glimpse_tidy_fricatives
+#| message: true
+#| warning: false
+#| echo: true
+
+head(tidy_fricatives)
+
+```
+
+- Thank god
+
+---
+
+# The data
+
+## Save data
+
+**(5.) Save the newly tidied data as a csv file in "data_tidy"**
+
+```{r}
+#| label: fricatives_tidy_csv
+
+write_csv(x = fricatives, file = "./data_tidy/tidy_fricatives.csv")
+
+```
+
+
+---
+
+# Statistics
+
+## Descriptive statistics
+
+**(6.) Provide a table of descriptive statistics**
+
+- Merlin brought up the idea of using a function for this and I liked that idea.
+
+- So! Here is the function I'm using:
+
+```{r}
+#| label: desriptive_stats_fx 
+#| message: true
+#| warning: false
+#| echo: true
+
+stats_fx <- function(x) {
+  cat("Mean:", mean(x), "\n")
+  cat("Std:", sd(x), "\n")
+  cat("Min:", min(x), "\n")
+  cat("Max:", max(x), "\n")
+  cat("Median:", median(x), "\n")
+  cat("Variance:", var(x), "\n")
+}
+
+```
+
+---
+### Descriptive statistics
+
+```{r}
+#| label: descriptive_stats_tables
+#| message: true
+#| warning: false
+#| echo: true
+
+knitr::kable(stats_fx(tidy_fricatives$cog),
+             caption = "Descriptive Statistics: Center of Gravity.")
+
+knitr::kable(stats_fx(tidy_fricatives$skewness),
+             caption = "Descriptive statistics: Skewness.")
+```
+
+
+---
+# Statistics 
+
+## Boxplots
+
+**(7.) Make a boxplot of center of gravity as a function of phoneme.**
+
+- The boxplot is on the next slide!
+
+---
+### Boxplot (cog and phoneme)
+
+```{r}
+#| label: boxplot_cog_phoneme
+#| echo: false
+#| warning: false
+
+tidy_fricatives |> 
+  ggplot() + 
+  aes(x = phoneme, y = cog) + 
+  geom_boxplot() +
+  labs(x = 'Phoneme', y = 'Center of Gravity') +
+  labs(title = "Center of Gravity by Phoneme.")
+```
+
+
+---
+# Statistics
+
+## Plot skewness
+
+**(7.) In another slide, plot skewness as a function of phoneme.**
+
+- Boxplot is on the next slide.
+
+---
+
+### Boxplot (skewness and phoneme)
+
+```{r}
+#| label: boxplot_skewness_phoneme
+#| echo: false
+#| warning: false
+
+tidy_fricatives |> 
+  ggplot() + 
+  aes(x = phoneme, y = skewness) + 
+  geom_boxplot() +
+  labs(x = 'Phoneme', y = 'Skewness') +
+  labs(title = "Skewness by Phoneme.")
+
+```
+
+---
+# Statistics
+
+## Stat summary
+
+**(7.) Use a statistical transformation (i.e., not a boxplot, but rather stat_summary()).**
+
+- This plot is on the next slide.
+
+---
+### Stats summary
+
+```{r}
+#| label: fricatives_transformation
+#| message: false
+#| warning: false
+#| echo: false
+
+tidy_fricatives |> 
+  ggplot() + 
+  aes(x = phoneme, y = skewness) +
+  stat_summary(
+    fun.data = mean_sdl,
+    geom = 'pointrange'
+  ) +
+  labs(x = "Phoneme", y = "Skewness") +
+  labs(title = "Skewness by Phoneme ('stat_summary' version)")
+
+```
+
+---
+
+# Model
+
+## Fit a model 
+
+**(8.) Fit a model that examines center of gravity as a function of skewness for the [s] segments (hint: you will have to transform the data).**
+
+```{r}
+#| label: mod_cog_skew
+
+s_data <- tidy_fricatives |>
+  filter(phoneme == "s") |>
+  select(phoneme, cog, skewness)
+
+s_mod <- lm(formula = cog ~ skewness, data = s_data)
+
+```
+
+---
+
+# Model
+
+## Model summary 
+
+**(8.) Make a table of the model summary.**
+
+```{r}
+#| label: s_mod_summary
+#| message: false
+#| warning: false
+#| echo: true
+
+summary(s_mod)
+
+```
+
+---
+
+# Model
+
+## Make scatterplot
+
+**(9.) Make a scatter plot that illustrates the relationship in the previous slides**
+
+- See next slide.
+
+---
+### Scatterplot
+
+```{r}
+#| label: scatterplot_s_mod
+#| message: false
+#| warning: false
+#| echo: true
+
+s_data |> 
+  ggplot() + 
+  geom_point(mapping = aes(x = cog, y = skewness)) +
+  geom_smooth(method='lm', aes(x = cog, y = skewness), se = FALSE) +
+  labs(x = 'Center of gravity', y = 'Skewness') +
+  labs(title = "Correlation between center of gravity and skewness for 's' phoneme.")
+
+```
+
+
+---
+
+# Model
+
+## Model diagnostics 
+
+**(10.) Check model diagnostics (make plots).**
+
+- See next slide
+
+---
+### Diagnostic plots
+
+```{r}
+#| label: diagnostics
+#| message: false
+#| warning: false
+#| echo: true
+#| fig-dpi: 300
+#| fig-asp: 0.56
+#| out-width: "100%"
+
+ds4ling::diagnosis(s_mod)
+
+```
+
+
+---
+
+### Results 
+
+**(11.) Write up the results (as if it were for a journal article).**
+
+- This model is fit **fairly well**.
+
+- **Plot 1:** The Residuals plot shows that the points are somewhat narrowly spread out around 0. This could be a bit better, but for now it is ***pretty good***.
+
+- **Plot 2:** The Density histogram is almost bell-shaped. This diagnostic *could* be better, but for now it is ***pretty good***. 
+
+- **Plot 3:** The Simple Quartiles plot shows that the tail ends of the data don't deviate much from the baseline. Again, this diagnostic ***could be better***, but it isn't terrible. 
+
+- So, overall this model is fit fairly well (especially with the consideration that no model is flawless) even though the plots could look a bit better.
+
+
+
+
+---
+
+# Assumptions 
+
+## Load dataset
+
+**(12.) In a new slide, load the assumptions.csv dataset.**
+
+```{r}
+#| label: load_assumptions
+#| message: false
+#| warning: false
+#| echo: true
+
+assumptions <- read_csv("./data_raw/fricatives/assumptions.csv")
+
+```
+---
+# Assumptions dataset
+
+## View the dataset
+
+```{r}
+#| label: view_assumptions
+#| message: false
+#| warning: false
+#| echo: true
+
+head(assumptions)
+
+```
+
+---
+
+# Assumptions dataset 
+
+## Scatterplot
+
+**(12.) Make a scatterplot.**
+
+- Oh!! A ***FRIEND***-shaped plot! 
+
+---
+### Our dinosaur friend
+
+```{r}
+#| label: scatterplot_assumptions
+#| message: false
+#| warning: false
+#| echo: true
+
+assumptions |>
+  ggplot() + 
+  aes(x = x, y = y) + 
+  geom_point()
+
+```
+
+
+---
+# Assumptions dataset 
+
+## Fit model to this data?
+
+**(12.) Explain in a few sentences why it would not be appropriate to fit a model to this data.**
+
+- Let's run the diagnoses to see exactly why it wouldn't be reasonable.
+
+- These plots are on the next slide.
+
+---
+### Fit a model?
+
+```{r}
+#| label: assumptions_diagnostics
+#| message: false
+#| warning: false
+#| echo: true
+#| fig-dpi: 300
+#| fig-asp: 0.56
+#| out-width: "100%"
+
+ass_mod <- lm(y ~ x, data = assumptions)
+
+ds4ling::diagnosis(ass_mod)
+
+```
+
+---
+
+### (12.) Fit a model? ***No.*** 
+
+Why is it not appropriate to fit a model to this data?
+
+- **Plot 1:** In the Residuals plot, the points are spread out ***very randomly***. 
+
+- **Plot 2:** The Density histogram is ***not bell-shaped*** at all. 
+
+- **Plot 3:** The Simple Quartiles plot shows that the ends of the datapoints ***greatly deviate*** from the line. 
+
+- All of these diagnoses indicate that **a fitted model isn't appropriate** for this dataset.
+
+---
+
+# "Thank you!" dino friend.
+
+```{r}
+#| label: dino_friend
+#| message: false
+#| warning: false
+#| echo: false
+
+assumptions |>
+  ggplot() + 
+  aes(x = x, y = y, color = "red") + 
+  geom_point()
+
+```
+
